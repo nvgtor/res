@@ -1,0 +1,130 @@
+@startuml
+
+package com.gensee{
+class RtSimpleImpl{
+~abstract void onVideoStart();
+~abstract void onVideoEnd();
+}
+interface IRoomCallBack{
+ ~直播间响应回调
+ #onInit()
+ (...)
+}
+interface IVideoCallBack{
+~视频回调
+#onVideoJoinConfirm()
+(...)
+}
+interface ILodCallBack{
+~插播（媒体共享）回调
+#onLodStart() 插播（媒体共享）开始通知
+(...)
+}
+interface IAudioCallBack{
+~音频回调
+#onAudioJoinConfirm()
+(...)
+}
+
+interface OnDocViewEventListener {
+    #boolean onDoubleClicked();
+    #boolean onSingleClicked();
+    #boolean onEndHDirection();
+}
+interface ErrCode{
+    #void onErr();
+}
+interface RtComp_Callback{
+    ~初始化响应回调
+    #void onInited();
+}
+interface OnTaskRet {
+    -int OK = 1;
+    -int ERR = 2;
+    #void onTaskRet();
+}
+
+interface IAsCallBack {
+    ~桌面共享回调
+    #void onAsJoinConfirm();加载通知
+    #void onAsBegin();开启通知
+    #void onAsEnd();结束通知
+    #void onAsData();数据流通知
+}
+
+}
+
+package com.sunland.app.ui.video{
+interface VideoActivityInterface {
+    +void setOrientation(int orientation);
+    +void setPlayOp(int imgID);
+    +void shutDanmaku();
+    +void showDanmaku();
+    +boolean getIsSubViewShow();
+    +void changeSubViewBig();
+    +void changeSubViewSmall();
+    +void switchMainSub();
+    +void switchMainFloat();
+    +void finishActivity();
+    +boolean isPlaying();
+    +void pauseVideo();
+    +void startVideo();
+    +void seekTo(int progress);
+}
+class GenseeOnliveVideoActivity{
+    -GenseeOnliveSdkPresenter sdkPresenter;
+    -VideoControlPresenter controlPresenter;
+    +initViews();
+    +initData();
+    +initFragment()
+}
+
+class GenseeOnliveSdkPresenter{
+#GenseeOnliveVideoActivity act;
+}
+
+class VideoControlPresenter{
+#GenseeOnliveVideoActivity act;
+}
+
+interface VideoFloatFragment_CallBack {
+        void finish();
+        void playOrPause();
+        void fullScreen();
+        void smallScreen();
+        int getWholeDuration();
+        void seekVideo(int progress);
+        boolean isPlaying();
+        void shutDanmaku();
+        void showDanmaku();
+        void changeSubSmall();
+        void changeSubBig();
+        void switchMainSub();
+    }
+
+}
+
+VideoActivityInterface <|.. GenseeOnliveVideoActivity
+GenseeOnliveVideoActivity-->GenseeOnliveSdkPresenter
+GenseeOnliveSdkPresenter-->GenseeOnliveVideoActivity
+GenseeOnliveVideoActivity --> VideoControlPresenter
+VideoControlPresenter --> GenseeOnliveVideoActivity
+VideoControlPresenter ..|> VideoFloatFragment_CallBack
+
+RtSimpleImpl ..|> IRoomCallBack
+RtSimpleImpl ..|> IVideoCallBack
+RtSimpleImpl ..|> ILodCallBack
+RtSimpleImpl ..|> IAsCallBack
+RtSimpleImpl ..|> IAudioCallBack
+
+RtComp_Callback --|> ErrCode
+GenseeOnliveSdkPresenter --|> RtSimpleImpl
+GenseeOnliveSdkPresenter ..|> IAsCallBack
+GenseeOnliveSdkPresenter ..|> OnDocViewEventListener
+GenseeOnliveSdkPresenter ..|> RtComp_Callback
+GenseeOnliveSdkPresenter ..|> OnTaskRet
+
+
+
+
+@enduml

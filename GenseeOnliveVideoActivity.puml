@@ -4,25 +4,39 @@ package com.gensee{
 class RtSimpleImpl{
 ~abstract void onVideoStart();
 ~abstract void onVideoEnd();
+-void onJoin(boolean b);
+-Context onGetContext();
 }
 interface IRoomCallBack{
  ~直播间响应回调
  #onInit()
- (...)
+ #onJoin();
+ #onRoomJoin();
+ #onRoomLeave();
+ #onRoomReconnecting();
+ (26...)
 }
 interface IVideoCallBack{
 ~视频回调
+~视频相关状态回调
+~用户视频数据接收
 #onVideoJoinConfirm()
-(...)
+#onVideoJoin()
+#onVideoDisplay()
+#onVideoDataRender()
+(10...)
 }
 interface ILodCallBack{
 ~插播（媒体共享）回调
-#onLodStart() 插播（媒体共享）开始通知
-(...)
+#onLodFailed() 播放失败
+#onLodStart() 播放开始
+onLodSkip() 插播进度变化
+(8...)
 }
 interface IAudioCallBack{
 ~音频回调
 #onAudioJoinConfirm()
+#onAudioMicAvailable()
 (...)
 }
 
@@ -39,6 +53,8 @@ interface RtComp_Callback{
     #void onInited();
 }
 interface OnTaskRet {
+    ~辅助接口
+    ~每一次调用结果通知
     -int OK = 1;
     -int ERR = 2;
     #void onTaskRet();
@@ -46,10 +62,20 @@ interface OnTaskRet {
 
 interface IAsCallBack {
     ~桌面共享回调
+    ~通知共享状态及其数据
     #void onAsJoinConfirm();加载通知
     #void onAsBegin();开启通知
     #void onAsEnd();结束通知
     #void onAsData();数据流通知
+}
+
+interface IChatCallBack {
+    ~接收聊天消息
+    #void onChatJoinConfirm();
+    #void onChatWithPersion();
+    #void onChatWithPublic();
+    #void onChatToPersion();
+    #void onChatEnable();
 }
 
 }
@@ -83,33 +109,42 @@ class GenseeOnliveSdkPresenter{
 #GenseeOnliveVideoActivity act;
 }
 
+class GenseeOnliveVideoChatPresenter{
+#GenseeOnliveVideoActivity act;
++String initDataText(String content);
++String replaceData(String data)
+}
+
 class VideoControlPresenter{
 #GenseeOnliveVideoActivity act;
 }
 
 interface VideoFloatFragment_CallBack {
-        void finish();
-        void playOrPause();
-        void fullScreen();
-        void smallScreen();
-        int getWholeDuration();
-        void seekVideo(int progress);
-        boolean isPlaying();
-        void shutDanmaku();
-        void showDanmaku();
-        void changeSubSmall();
-        void changeSubBig();
-        void switchMainSub();
+        +void finish();
+        +void playOrPause();
+        +void fullScreen();
+        +void smallScreen();
+        +int getWholeDuration();
+        +void seekVideo(int progress);
+        +boolean isPlaying();
+        +void shutDanmaku();
+        +void showDanmaku();
+        +void changeSubSmall();
+        +void changeSubBig();
+        +void switchMainSub();
     }
 
 }
+GenseeOnliveVideoActivity .up.|> VideoActivityInterface
+GenseeOnliveVideoActivity -down->GenseeOnliveSdkPresenter
+GenseeOnliveVideoActivity -right->VideoControlPresenter
+GenseeOnliveVideoActivity-left->GenseeOnliveVideoChatPresenter
 
-VideoActivityInterface <|.. GenseeOnliveVideoActivity
-GenseeOnliveVideoActivity-->GenseeOnliveSdkPresenter
 GenseeOnliveSdkPresenter-->GenseeOnliveVideoActivity
-GenseeOnliveVideoActivity --> VideoControlPresenter
-VideoControlPresenter --> GenseeOnliveVideoActivity
-VideoControlPresenter ..|> VideoFloatFragment_CallBack
+GenseeOnliveVideoChatPresenter-->GenseeOnliveVideoActivity
+VideoControlPresenter-->GenseeOnliveVideoActivity
+
+VideoControlPresenter .up.|> VideoFloatFragment_CallBack
 
 RtSimpleImpl ..|> IRoomCallBack
 RtSimpleImpl ..|> IVideoCallBack
@@ -124,6 +159,7 @@ GenseeOnliveSdkPresenter ..|> OnDocViewEventListener
 GenseeOnliveSdkPresenter ..|> RtComp_Callback
 GenseeOnliveSdkPresenter ..|> OnTaskRet
 
+GenseeOnliveVideoChatPresenter..|>IChatCallBack
 
 
 

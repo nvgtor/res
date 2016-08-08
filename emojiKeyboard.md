@@ -3,7 +3,7 @@
 ## 项目特点
 [github地址][1]
 
-## 在尚德APP中的使用
+## 在APP中的使用
 
 ### 导入Module EmojiLibrary
 
@@ -50,6 +50,56 @@
 
 ![类图结构][3]
 
+#### SoftKeyboardSizeWatchLayout
+
+继承 RelativeLayout 主要在构造函数中监听了视图树的变化，得到全屏可视高度即不包含状态栏的全屏高度和软键盘的高度，并通过接口OnResizeListener中的OnSoftPop()方法，传递软键盘的高度
+
+```
+public SoftKeyboardSizeWatchLayout(Context context, AttributeSet attrs) {
+        super(context, attrs);
+        this.mContext = context;
+        getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+            @Override
+            public void onGlobalLayout() {
+                Rect r = new Rect();
+                ((Activity) mContext).getWindow().getDecorView().getWindowVisibleDisplayFrame(r);
+                if (mScreenHeight == 0) {
+                    mScreenHeight = r.bottom;
+                }
+                mNowh = mScreenHeight - r.bottom;
+                if (mOldh != -1 && mNowh != mOldh) {
+                    if (mNowh > 0) {
+                        mIsSoftKeyboardPop = true;
+                        if (mListenerList != null) {
+                            for (OnResizeListener l : mListenerList) {
+                                l.OnSoftPop(mNowh);
+                            }
+                        }
+                    } else {
+                        mIsSoftKeyboardPop = false;
+                        if (mListenerList != null) {
+                            for (OnResizeListener l : mListenerList) {
+                                l.OnSoftClose();
+                            }
+                        }
+                    }
+                }
+                mOldh = mNowh;
+            }
+        });
+    }
+```
+
+#### AutoHeightLayout
+
+这是一个抽象类，继承 SoftKeyboardSizeWatchLayout，包含抽象方法,子类实现该方法获得软键盘的高度
+
+```
+public abstract void onSoftKeyboardHeightChanged(int height);
+```
+
+该类中主要完成布局键盘高度和
+ 
 
   [1]: https://github.com/w446108264/XhsEmoticonsKeyboard
   [2]: https://raw.githubusercontent.com/w446108264/XhsEmoticonsKeyboard/master/output/treeview.png
